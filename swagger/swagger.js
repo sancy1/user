@@ -22,9 +22,9 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Contacts API',
+      title: 'Users API',
       version: '1.0.0',
-      description: 'API for managing contacts',
+      description: 'API for managing Users',
     },
     servers: [
       {
