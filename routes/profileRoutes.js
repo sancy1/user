@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
@@ -41,12 +40,9 @@ const {
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
- * 
- * 
  *   tags:
  *     - name: Profile
  *       description: Standard profile operations
- *
  */
 
 /**
@@ -187,7 +183,7 @@ router.patch("/profile", protect, profileValidationRules(), validate, updateProf
  * /profile:
  *   delete:
  *     summary: Delete user profile
- *     description: Permanently delete the user's profile (Note: This may also delete the user account depending on your implementation)
+ *     description: Permanently delete the user's profile
  *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
@@ -202,13 +198,3 @@ router.patch("/profile", protect, profileValidationRules(), validate, updateProf
 router.delete('/profile', protect, deleteProfile);
 
 module.exports = router;
-
-
-
-
-
-
-
-
-
-
