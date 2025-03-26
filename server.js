@@ -38,7 +38,7 @@ swaggerSetup(app);
 // Route for the root URL
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to the Contacts API!',
+    message: 'Welcome to the Users API!',
     endpoints: {
       // Section spacer
       " ": "─────────────────────────────────────────",
