@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: users # Replace with your app name
+    runtime: node
+    buildCommand: pnpm install
+    startCommand: node server.js # or your entry point
+    envVars:
+      - key: PORT
+        value: 10000 # Render uses 10000 for free tier
