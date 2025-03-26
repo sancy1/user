@@ -29,7 +29,7 @@ const swaggerOptions = {
     servers: [
       {
         url: process.env.NODE_ENV === "production" 
-          ? "https://contacts-api-ghz7.onrender.com/api" 
+          ? "https://ellux.onrender.com/api" 
           : "http://localhost:3000/api",
         description: process.env.NODE_ENV === "production" 
           ? "Production server" 
