@@ -1,0 +1,122 @@
+
+Using Swagger To Make Post Request
+http://localhost:3000/api-docs
+https://contacts-api-ghz7.onrender.com/api-docs
+
+---------
+USER APP:
+---------
+Base URL:
+http://localhost:3000/api/users
+
+POST Register:
+http://localhost:3000/api/users/register
+
+{
+  "username": "ellux",
+  "email": "ellux.developer@gmail.com",
+  "password": "password123",
+  "confirmPassword": "securePassword123"
+}
+
+
+POST Login
+http://localhost:3000/api/users/login
+{
+  "email": "ellux.developer@gmail.com",
+  "password": "password123"
+}
+
+POST Logout
+http://localhost:3000/api/users/logout
+
+Usage Instructions
+Change Password
+Send a POST request to /users/change-password with the currentPassword and newPassword.
+POST /users/change-password
+{
+  "currentPassword": "oldPassword123",
+  "newPassword": "newPassword123",
+  "confirmPassword": "securePassword123"
+}
+
+Delete User
+Send a DELETE request to /users/delete.
+
+Admin: Delete All Users
+Send a DELETE request to /users/admin/delete-all.
+
+Admin: Delete Single User
+Send a DELETE request to /users/admin/delete/:userId.
+
+Admin: Get All Users
+Send a GET request to /users/admin/all.
+
+Admin: Get Single User
+Send a GET request to /users/admin/:userId.
+
+Admin: Put Update User Role
+/users/admin/update-role/{userId} (Id of the user you want the role changed)
+{
+  "role": "admin"
+}
+
+Account Info
+Send a GET request to /users/account.
+http://localhost:3000/api/users/account
+Header:
+KEY: Authorization
+VALUE: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q1NWYxNzY0MWE3ODk1YWJiNmE5YTgiLCJpYXQiOjE3NDIwNDUwMjMsImV4cCI6MTc0MjA0ODYyM30.r7LL3f07KDl0NofJmgJwDj_kNyU-q4LKwQ48D4ijVEM
+
+http://localhost:3000/api/users/refresh-token
+
+
+================================================================================================
+
+Resend Verification Email
+POST /api/users/resend-verification-email
+{
+  "email": "john.doe@example.com"
+}
+
+Admin: Get Unverified Users
+GET /api/users/admin/unverified
+"Authorization: Bearer <admin_token>"
+
+Admin: Delete Unverified Users
+DELETE /api/users/admin/delete-unverified
+"Authorization: Bearer <admin_token>"
+
+Admin: Delete All Users Except Admin
+DELETE: /api/users/admin/delete-all-except-admin
+"Authorization: Bearer <admin_token>"
+
+Endpoint: POST /api/users/forgot-password
+Request Body:
+{
+  "email": "user@example.com"
+}
+
+Endpoint GET Request
+Validate Reset Token
+/api/users/reset-password?token=ad23f8deb3a52f85678f19312359927162896073
+
+Endpoint: POST /api/users/reset-password
+Request Body:
+{
+  "token": "ad23f8deb3a52f85678f19312359927162896073",
+  "newPassword": "JUDIFOxcymaxcy@121",
+  "confirmPassword": "securePassword123",
+  "userId": "6343592a-1a5e-4d06-98c7-3f81166d21fa"
+}
+
+
+
+========================================================================
+
+http://localhost:3000/api/users/auth/google
+http://localhost:3000/api/users/auth/google/callback
+http://localhost:3000/api/users/auth/switch-account
+http://localhost:3000/api/users/auth/logout
+
+http://localhost:3000/api/users/profile
