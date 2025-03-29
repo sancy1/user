@@ -49,25 +49,43 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 // Verify Email --------------------------------------------------------------
+// const verifyEmail = asyncHandler(async (req, res) => {
+//   const { token } = req.query;
+
+//   if (!token) {
+//     const error = new Error("Token is required");
+//     error.statusCode = 400; 
+//     throw error;
+//   }
+
+//   const user = await verifyEmailService(token);
+
+//   if (!user) {
+//     const error = new Error("Invalid or expired token");
+//     error.statusCode = 400; 
+//     throw error;
+//   }
+
+//   res.status(200).json({ message: "Email verified successfully" });
+// });
+
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.query;
 
   if (!token) {
-    const error = new Error("Token is required");
-    error.statusCode = 400; 
-    throw error;
+    return res.redirect(302, `${process.env.API_BASE_URL}/verify-email.html?error=Token is required`);
   }
 
   const user = await verifyEmailService(token);
 
   if (!user) {
-    const error = new Error("Invalid or expired token");
-    error.statusCode = 400; 
-    throw error;
+    return res.redirect(302, `${process.env.API_BASE_URL}/verify-email.html?error=Invalid or expired token`);
   }
 
-  res.status(200).json({ message: "Email verified successfully" });
+  // Redirect to success page instead of returning JSON
+  res.redirect(302, `${process.env.API_BASE_URL}/verify-email.html?verified=true`);
 });
+
 
 
 // Login User --------------------------------------------------------------
@@ -367,50 +385,93 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 
 // Validate Reset Token --------------------------------------------------------------
+// const validateResetToken = asyncHandler(async (req, res) => {
+//   const { token } = req.query;
+
+//   if (!token) {
+//     const error = new Error("Token is required");
+//     error.statusCode = 400; 
+//     throw error;
+//   }
+
+//   const userId = await validateResetTokenService(token);
+
+//   if (!userId) {
+//     const error = new Error("Invalid or expired token");
+//     error.statusCode = 400; 
+//     throw error;
+//   }
+
+//   res.status(200).json({
+//     message: "Token is valid. You can now reset your password.",
+//     userId,
+//   });
+// });
+
+
 const validateResetToken = asyncHandler(async (req, res) => {
   const { token } = req.query;
 
   if (!token) {
-    const error = new Error("Token is required");
-    error.statusCode = 400; 
-    throw error;
+    return res.redirect(`${process.env.API_BASE_URL}/reset-password-verification.html?error=Token is required`);
   }
 
   const userId = await validateResetTokenService(token);
 
   if (!userId) {
-    const error = new Error("Invalid or expired token");
-    error.statusCode = 400; 
-    throw error;
+    return res.redirect(`${process.env.API_BASE_URL}/reset-password-verification.html?error=Invalid or expired token`);
   }
 
-  res.status(200).json({
-    message: "Token is valid. You can now reset your password.",
-    userId,
-  });
+  // Redirect to frontend with success
+  res.redirect(`${process.env.API_BASE_URL}/reset-password-verification.html?userId=${userId}`);
 });
 
 
+
+
 // Reset Password --------------------------------------------------------------
+// const resetPassword = asyncHandler(async (req, res) => {
+//   const { token, newPassword, confirmNewPassword, userId } = req.body;
+
+//   if (!token || !newPassword || !confirmNewPassword || !userId) {
+//     const error = new Error("All fields are required");
+//     error.statusCode = 400; 
+//     throw error;
+//   }
+
+//   // Password match
+//   confirmPasswordMatch(newPassword, confirmNewPassword);
+
+//   await resetPasswordService(userId, token, newPassword);
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Password reset successfully",
+//   });
+// });
+
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    const error = new Error("All fields are required");
-    error.statusCode = 400; 
-    throw error;
+    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?error=All fields are required`);
   }
 
-  // Password match
-  confirmPasswordMatch(newPassword, confirmNewPassword);
+  try {
+    // Password match validation
+    confirmPasswordMatch(newPassword, confirmNewPassword);
 
-  await resetPasswordService(userId, token, newPassword);
+    // Reset password in database
+    await resetPasswordService(userId, token, newPassword);
 
-  res.status(200).json({
-    success: true,
-    message: "Password reset successfully",
-  });
+    // Redirect to success page
+    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?success=Password reset successfully`);
+  } catch (error) {
+    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
+  }
 });
+
+
 
 module.exports = {
   registerUser,
