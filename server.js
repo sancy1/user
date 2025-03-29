@@ -1,115 +1,303 @@
 
-const express = require("express");
-const passport = require('./config/passport');
+
+
+require("dotenv").config();
 require("express-async-errors");
+const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const path = require("path");
+const passport = require("./config/passport");
 const connectDB = require("./config/db/connect");
 const routes = require("./routes");
 const swaggerSetup = require("./swagger/swagger");
 const errorHandler = require("./middlewares/errorHandler");
-const cookieParser = require('cookie-parser');
-require("dotenv").config();
 
-
-const app = express(); 
+// Initialize Express app
+const app = express();
 const PORT = process.env.PORT || 3000;
+const API_BASE_URL = process.env.API_BASE_URL || `http://localhost:${PORT}`;
 
-// Use cookie-parser middleware
+// ======================
+// Middleware Setup
+// ======================
 app.use(cookieParser());
-
-// Middleware to parse JSON
 app.use(express.json());
 
-// Enable CORS for all routes
-app.use(cors());
+// Enhanced CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'http://localhost:5173', // Default Vite server
+      'https://ellux.onrender.com' // Your Render URL
+    ].filter(Boolean); // Remove any undefined values
 
-// Handle preflight requests for all routes
-app.options("*", cors());
+    if (allowedOrigins.includes(origin) || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-// Initialize Passport
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// Passport Initialization
 app.use(passport.initialize());
 
-// Routes
+// ======================
+// API Routes
+// ======================
 app.use("/api", routes);
 
-// Swagger Documentation
+// ======================
+// Documentation
+// ======================
 swaggerSetup(app);
 
-// Route for the root URL
-app.get('/', (req, res) => {
+// ======================
+// Root Endpoint
+// ======================
+app.get("/", (req, res) => {
   res.json({
-    message: 'Welcome to the Users API!',
+    message: "Welcome to the Users API!",
+    apiBaseUrl: API_BASE_URL,
+    allowedOrigins: corsOptions.origin.toString(),
     endpoints: {
-      // Section spacer
-      " ": "─────────────────────────────────────────",
-      "Google OAuth2 Authentication": " ",
-      " ": "─────────────────────────────────────────",
-      
-      'GET /api/users/auth/google': 'Initiate Google OAuth authentication',
-      'GET /api/users/auth/google/callback': 'Google OAuth callback',
-      'POST /api/users/auth/logout': 'Logout user',
-      'GET /api/users/auth/switch-account': 'Switch user account',
-      'POST /api/users/auth/refresh-token': 'Refresh authentication token',
-      
-      // Section spacer
-      "  ": " ",
-      "  ": "─────────────────────────────────────────",
-      "  ": "Custom User",
-      "  ": "─────────────────────────────────────────",
-      
-      'POST /api/users/register': 'Register a new user',
-      'GET /api/users/admin/unverified': 'Get all unverified users (Admin Only)',
-      'GET /api/users/verify-email': 'Verify user email',
-      'POST /api/users/login': 'Login user',
-      'DELETE /api/users/admin/delete-unverified': 'Delete all unverified users (Admin Only)',
-      'PUT /api/users/change-password': 'Change user password',
-      'DELETE /api/users/delete': 'Delete user account',
-      'GET /api/users/account': 'Get account info',
-      'DELETE /api/users/admin/delete-all': 'Delete all users (Admin Only)',
-      'DELETE /api/users/admin/delete/{userId}': 'Delete a single user (Admin Only)',
-      'GET /api/users/admin/all': 'Get all users (Admin Only)',
-      'GET /api/users/admin/{userId}': 'Get a single user (Admin Only)',
-      'PUT /api/users/admin/update-role/{userId}': 'Update user role (Admin Only)',
-      'POST /api/users/refresh-token': 'Refresh access token',
-      'POST /api/users/logout': 'Logout user',
-      'POST /api/users/resend-verification-email': 'Resend verification email',
-      'DELETE /api/users/admin/delete-all-except-admin': 'Delete all users except admin (Admin Only)',
-      'POST /api/users/forgot-password': 'Request a password reset',
-      'GET /api/users/reset-password': 'Validate reset password token',
-      'POST /api/users/reset-password': 'Reset user password',
-      
-      // Section spacer
-      "   ": " ",
-      "   ": "─────────────────────────────────────────",
-      "   ": "Profile",
-      "   ": "─────────────────────────────────────────",
-      
-      'GET /api/users/profile': 'Get user profile',
-      'PUT /api/users/profile': 'Update user profile (full update)',
-      'PATCH /api/users/profile': 'Update user profile (partial update)',
-      'DELETE /api/users/profile': 'Delete user profile'
+      authentication: {
+        google: {
+          initiate: "GET /api/users/auth/google",
+          callback: "GET /api/users/auth/google/callback",
+          logout: "POST /api/users/auth/logout",
+          switchAccount: "GET /api/users/auth/switch-account",
+          refreshToken: "POST /api/users/auth/refresh-token",
+        },
+      },
+      users: {
+        register: "POST /api/users/register",
+        verifyEmail: "GET /api/users/verify-email",
+        login: "POST /api/users/login",
+        account: "GET /api/users/account",
+        adminOperations: {
+          unverifiedUsers: "GET /api/users/admin/unverified",
+          deleteUnverified: "DELETE /api/users/admin/delete-unverified",
+          allUsers: "GET /api/users/admin/all",
+          userById: "GET /api/users/admin/{userId}",
+          updateRole: "PUT /api/users/admin/update-role/{userId}",
+          deleteAll: "DELETE /api/users/admin/delete-all",
+          deleteAllExceptAdmin: "DELETE /api/users/admin/delete-all-except-admin",
+        },
+      },
+      profile: {
+        get: "GET /api/users/profile",
+        update: {
+          full: "PUT /api/users/profile",
+          partial: "PATCH /api/users/profile",
+        },
+        delete: "DELETE /api/users/profile",
+      },
     },
-    documentation: 'For detailed documentation, visit /api-docs',
+    documentation: `${API_BASE_URL}/api-docs`,
   });
 });
 
+// ======================
+// Production Configuration
+// ======================
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+  });
+}
 
-// Centralized error handling middleware (must be after all routes)
+// ======================
+// Error Handling
+// ======================
 app.use(errorHandler);
 
-// Connect to MongoDB and Start the Server
+// ======================
+// Server Initialization
+// ======================
 const startServer = async () => {
   try {
-    await connectDB(); // Wait for MongoDB connection
-
-    // Start the server
+    await connectDB();
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`
+      ==================================
+       Server successfully initialized
+      ==================================
+      API Base URL: ${API_BASE_URL}
+      Port: ${PORT}
+      Environment: ${process.env.NODE_ENV || "development"}
+      Allowed Origins: ${corsOptions.origin.toString()}
+      MongoDB: Connected
+      ==================================
+      `);
     });
   } catch (error) {
-    console.error("Failed to start server:", error.message);
+    console.error("Server initialization failed:", error.message);
+    process.exit(1);
   }
 };
 
-// Start only after DB connection
 startServer();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const express = require("express");
+// const passport = require('./config/passport');
+// require("express-async-errors");
+// const cors = require("cors");
+// const connectDB = require("./config/db/connect");
+// const routes = require("./routes");
+// const swaggerSetup = require("./swagger/swagger");
+// const errorHandler = require("./middlewares/errorHandler");
+// const cookieParser = require('cookie-parser');
+// require("dotenv").config();
+
+
+// const app = express(); 
+// const PORT = process.env.PORT || 3000;
+
+// // Use cookie-parser middleware
+// app.use(cookieParser());
+
+// // Middleware to parse JSON
+// app.use(express.json());
+
+// // Enable CORS for all routes
+// app.use(cors());
+
+// // Handle preflight requests for all routes
+// app.options("*", cors());
+
+// // Initialize Passport
+// app.use(passport.initialize());
+
+// // Routes
+// app.use("/api", routes);
+
+// // Swagger Documentation
+// swaggerSetup(app);
+
+// // Route for the root URL
+// app.get('/', (req, res) => {
+//   res.json({
+//     message: 'Welcome to the Users API!',
+//     endpoints: {
+//       // Section spacer
+//       " ": "─────────────────────────────────────────",
+//       "Google OAuth2 Authentication": " ",
+//       " ": "─────────────────────────────────────────",
+      
+//       'GET /api/users/auth/google': 'Initiate Google OAuth authentication',
+//       'GET /api/users/auth/google/callback': 'Google OAuth callback',
+//       'POST /api/users/auth/logout': 'Logout user',
+//       'GET /api/users/auth/switch-account': 'Switch user account',
+//       'POST /api/users/auth/refresh-token': 'Refresh authentication token',
+      
+//       // Section spacer
+//       "  ": " ",
+//       "  ": "─────────────────────────────────────────",
+//       "  ": "Custom User",
+//       "  ": "─────────────────────────────────────────",
+      
+//       'POST /api/users/register': 'Register a new user',
+//       'GET /api/users/admin/unverified': 'Get all unverified users (Admin Only)',
+//       'GET /api/users/verify-email': 'Verify user email',
+//       'POST /api/users/login': 'Login user',
+//       'DELETE /api/users/admin/delete-unverified': 'Delete all unverified users (Admin Only)',
+//       'PUT /api/users/change-password': 'Change user password',
+//       'DELETE /api/users/delete': 'Delete user account',
+//       'GET /api/users/account': 'Get account info',
+//       'DELETE /api/users/admin/delete-all': 'Delete all users (Admin Only)',
+//       'DELETE /api/users/admin/delete/{userId}': 'Delete a single user (Admin Only)',
+//       'GET /api/users/admin/all': 'Get all users (Admin Only)',
+//       'GET /api/users/admin/{userId}': 'Get a single user (Admin Only)',
+//       'PUT /api/users/admin/update-role/{userId}': 'Update user role (Admin Only)',
+//       'POST /api/users/refresh-token': 'Refresh access token',
+//       'POST /api/users/logout': 'Logout user',
+//       'POST /api/users/resend-verification-email': 'Resend verification email',
+//       'DELETE /api/users/admin/delete-all-except-admin': 'Delete all users except admin (Admin Only)',
+//       'POST /api/users/forgot-password': 'Request a password reset',
+//       'GET /api/users/reset-password': 'Validate reset password token',
+//       'POST /api/users/reset-password': 'Reset user password',
+      
+//       // Section spacer
+//       "   ": " ",
+//       "   ": "─────────────────────────────────────────",
+//       "   ": "Profile",
+//       "   ": "─────────────────────────────────────────",
+      
+//       'GET /api/users/profile': 'Get user profile',
+//       'PUT /api/users/profile': 'Update user profile (full update)',
+//       'PATCH /api/users/profile': 'Update user profile (partial update)',
+//       'DELETE /api/users/profile': 'Delete user profile'
+//     },
+//     documentation: 'For detailed documentation, visit /api-docs',
+//   });
+// });
+
+
+// // Centralized error handling middleware (must be after all routes)
+// app.use(errorHandler);
+
+// // Connect to MongoDB and Start the Server
+// const startServer = async () => {
+//   try {
+//     await connectDB(); // Wait for MongoDB connection
+
+//     // Start the server
+//     app.listen(PORT, () => {
+//       console.log(`Server running on http://localhost:${PORT}`);
+//     });
+//   } catch (error) {
+//     console.error("Failed to start server:", error.message);
+//   }
+// };
+
+// // Start only after DB connection
+// startServer();
