@@ -22,31 +22,57 @@ const generateRefreshToken = (userId, role) => {
 
 
 // Middleware to protect routes --------------------------------------------------------------
+// const protect = (req, res, next) => {
+//   let token;
+
+//   // Check if the token is in the headers
+//   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+//     token = req.headers.authorization.split(" ")[1]; // Extract the token
+//   }
+
+//   if (!token) {
+//     const error = new Error("Not authorized, no token");
+//     error.statusCode = 401; 
+//     throw error; 
+//   }
+
+//   try {
+//     // Verify the token
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     req.user = decoded; // Attach the decoded data to the request object
+//     console.log("Decoded user:", decoded); // Debugging log
+//     next();
+//   } catch (error) {
+//     console.error("Token verification failed:", error); // Loging the error for debugging
+//     const err = new Error("Not authorized, token failed");
+//     err.statusCode = 401; 
+//     throw err; 
+//   }
+// };
+
+
 const protect = (req, res, next) => {
   let token;
 
-  // Check if the token is in the headers
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-    token = req.headers.authorization.split(" ")[1]; // Extract the token
+    token = req.headers.authorization.split(" ")[1];
   }
 
   if (!token) {
-    const error = new Error("Not authorized, no token");
-    error.statusCode = 401; 
-    throw error; 
+    return res.status(401).json({ success: false, message: "Not authorized, no token" });
   }
 
   try {
-    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach the decoded data to the request object
-    console.log("Decoded user:", decoded); // Debugging log
+    req.user = {
+      _id: decoded.userId,  // Make sure this matches your JWT payload
+      role: decoded.role
+    };
+    console.log('Decoded user:', req.user); // Debug log
     next();
   } catch (error) {
-    console.error("Token verification failed:", error); // Loging the error for debugging
-    const err = new Error("Not authorized, token failed");
-    err.statusCode = 401; 
-    throw err; 
+    console.error("Token verification failed:", error);
+    return res.status(401).json({ success: false, message: "Not authorized, token failed" });
   }
 };
 

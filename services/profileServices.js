@@ -39,28 +39,57 @@ const createProfileService = async (userId, username, profileImage = null) => {
 
 
 // Get user profile with user information --------------------------------------------------------------
+// const getProfileService = async (userId) => {
+//   try {
+//     const profile = await Profile.findOne({ userId });
+
+//     if (!profile) {
+//       const error = new Error("Profile not found");
+//       error.statusCode = 404; 
+//       throw error; 
+//     }
+
+//     const user = await User.findById(profile.userId).select("-password"); 
+
+//     if (!user) {
+//       const error = new Error("User not found");
+//       error.statusCode = 404; 
+//       throw error; 
+//     }
+
+//     return { user, profile };
+//   } catch (error) {
+//     console.error("Error in getProfileService:", error);
+//     throw error; 
+//   }
+// };
+
 const getProfileService = async (userId) => {
   try {
-    const profile = await Profile.findOne({ userId });
-
+    console.log('Searching for profile with userId:', userId); // Debug log
+    
+    const profile = await Profile.findOne({ userId: userId });
+    
     if (!profile) {
+      console.log('No profile found for userId:', userId); // Debug log
       const error = new Error("Profile not found");
-      error.statusCode = 404; 
-      throw error; 
+      error.statusCode = 404;
+      throw error;
     }
 
-    const user = await User.findById(profile.userId).select("-password"); 
-
+    const user = await User.findById(userId).select("-password");
+    
     if (!user) {
       const error = new Error("User not found");
-      error.statusCode = 404; 
-      throw error; 
+      error.statusCode = 404;
+      throw error;
     }
 
+    console.log('Found profile:', profile); // Debug log
     return { user, profile };
   } catch (error) {
     console.error("Error in getProfileService:", error);
-    throw error; 
+    throw error;
   }
 };
 

@@ -1,5 +1,8 @@
 
 
+
+// controllers/profileController.js
+
 const asyncHandler = require("express-async-handler");
 const {
   createProfileService,
@@ -8,83 +11,49 @@ const {
   deleteProfileService,
 } = require("../services/profileServices");
 
-
-// Auto-create profile for a user --------------------------------------------------------------
+// Auto-create profile for a user
 const createProfile = asyncHandler(async (userId, username, profileImage = null) => {
   if (!userId || !username) {
     const error = new Error("userId and username are required");
     error.statusCode = 400; 
     throw error; 
   }
-
-  // Call the service to create the profile
-  const profile = await createProfileService(userId, username, profileImage);
-
-  return profile;
+  return await createProfileService(userId, username, profileImage);
 });
 
+// Get user profile
+// const getProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user._id; // Changed from req.user.userId to req.user._id
+  
+//   const { user, profile } = await getProfileService(userId);
+//   res.status(200).json({ user, profile });
+// });
 
-// Get user profile with user information --------------------------------------------------------------
 const getProfile = asyncHandler(async (req, res) => {
-  const userId = req.user.userId;
-
-  if (!userId) {
-    const error = new Error("User ID is required");
-    error.statusCode = 400; 
-    throw error; 
-  }
-
+  console.log('Request user:', req.user); // Debug log
+  const userId = req.user._id; // This should match what's in your protect middleware
+  
   const { user, profile } = await getProfileService(userId);
-
-  res.status(200).json({
-    user, 
-    profile, 
-  });
+  res.status(200).json({ user, profile });
 });
 
 
-// Update user profile --------------------------------------------------------------
+
+// Update user profile
 const updateProfile = asyncHandler(async (req, res) => {
-  const userId = req.user.userId;
-  const { name, address, profileImage, biography, professionalInfo } = req.body;
-
-  if (!userId) {
-    const error = new Error("User ID is required");
-    error.statusCode = 400; 
-    throw error; 
-  }
-
-  if (Object.keys(req.body).length === 0) {
-    const error = new Error("Request body is required");
-    error.statusCode = 400; 
-    throw error; 
-  }
-
-  const profile = await updateProfileService(userId, {
-    name,
-    address,
-    profileImage,
-    biography,
-    professionalInfo,
-  });
-
-  res.status(200).json(profile);
+  const userId = req.user._id; // Changed from req.user.userId to req.user._id
+  const updates = req.body;
+  
+  const updatedProfile = await updateProfileService(userId, updates);
+  res.status(200).json(updatedProfile);
 });
 
-
-// Delete user profile and account --------------------------------------------------------------
+// Delete user profile
 const deleteProfile = asyncHandler(async (req, res) => {
-  const userId = req.user.userId;
-
-  if (!userId) {
-    const error = new Error("User ID is required");
-    error.statusCode = 400; 
-    throw error; 
-  }
-
-  const result = await deleteProfileService(userId);
-
-  res.status(200).json(result);
+  const userId = req.user._id; // Changed from req.user.userId to req.user._id
+  
+  await deleteProfileService(userId);
+  res.status(204).json({ message: "Profile deleted successfully" });
 });
 
 module.exports = {
@@ -93,6 +62,116 @@ module.exports = {
   updateProfile,
   deleteProfile,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const asyncHandler = require("express-async-handler");
+// const {
+//   createProfileService,
+//   getProfileService,
+//   updateProfileService,
+//   deleteProfileService,
+// } = require("../services/profileServices");
+
+
+// // Auto-create profile for a user --------------------------------------------------------------
+// const createProfile = asyncHandler(async (userId, username, profileImage = null) => {
+//   if (!userId || !username) {
+//     const error = new Error("userId and username are required");
+//     error.statusCode = 400; 
+//     throw error; 
+//   }
+
+//   // Call the service to create the profile
+//   const profile = await createProfileService(userId, username, profileImage);
+
+//   return profile;
+// });
+
+
+// // Get user profile with user information --------------------------------------------------------------
+// const getProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user.userId;
+
+//   if (!userId) {
+//     const error = new Error("User ID is required");
+//     error.statusCode = 400; 
+//     throw error; 
+//   }
+
+//   const { user, profile } = await getProfileService(userId);
+
+//   res.status(200).json({
+//     user, 
+//     profile, 
+//   });
+// });
+
+
+// // Update user profile --------------------------------------------------------------
+// const updateProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user.userId;
+//   const { name, address, profileImage, biography, professionalInfo } = req.body;
+
+//   if (!userId) {
+//     const error = new Error("User ID is required");
+//     error.statusCode = 400; 
+//     throw error; 
+//   }
+
+//   if (Object.keys(req.body).length === 0) {
+//     const error = new Error("Request body is required");
+//     error.statusCode = 400; 
+//     throw error; 
+//   }
+
+//   const profile = await updateProfileService(userId, {
+//     name,
+//     address,
+//     profileImage,
+//     biography,
+//     professionalInfo,
+//   });
+
+//   res.status(200).json(profile);
+// });
+
+
+// // Delete user profile and account --------------------------------------------------------------
+// const deleteProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user.userId;
+
+//   if (!userId) {
+//     const error = new Error("User ID is required");
+//     error.statusCode = 400; 
+//     throw error; 
+//   }
+
+//   const result = await deleteProfileService(userId);
+
+//   res.status(200).json(result);
+// });
+
+// module.exports = {
+//   createProfile,
+//   getProfile,
+//   updateProfile,
+//   deleteProfile,
+// };
 
 
 

@@ -47,7 +47,7 @@ const {
 
 /**
  * @swagger
- * /profile:
+ * /users/profile:
  *   get:
  *     summary: Get user profile
  *     description: Retrieve the authenticated user's profile information
@@ -70,7 +70,7 @@ router.get('/profile', protect, getProfile);
 
 /**
  * @swagger
- * /profile:
+ * /users/profile:
  *   put:
  *     summary: Update user profile (full update)
  *     description: Replace all profile fields with the provided values
@@ -115,7 +115,7 @@ router.put('/profile', protect, profileValidationRules(), validate, updateProfil
 
 /**
  * @swagger
- * /profile:
+ * /users/profile:
  *   patch:
  *     summary: Update user profile (partial update)
  *     description: Update specific fields of the user's profile
@@ -180,7 +180,7 @@ router.patch("/profile", protect, profileValidationRules(), validate, updateProf
 
 /**
  * @swagger
- * /profile:
+ * /users/profile:
  *   delete:
  *     summary: Delete user profile
  *     description: Permanently delete the user's profile

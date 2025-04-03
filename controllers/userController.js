@@ -88,6 +88,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // });
 
 
+
 const verifyEmail = async (req, res) => {
   const { token } = req.query;
 
@@ -96,16 +97,18 @@ const verifyEmail = async (req, res) => {
 
     if (!user) {
       // Redirect to FRONTEND with error
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?error=Invalid+token`);
+      return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=Invalid+token`);
     }
 
     // ✅ SUCCESS: Redirect to FRONTEND (not backend!)
-    return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?verified=true`);
+    return res.redirect(`${process.env.FRONTEND_URL}/verify-email?verified=true`);
   } catch (error) {
     // Redirect to FRONTEND with error
-    return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?error=${encodeURIComponent(error.message)}`);
+    return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=${encodeURIComponent(error.message)}`);
   }
 };
+
+
 
 
 
@@ -127,12 +130,20 @@ const loginUser = asyncHandler(async (req, res) => {
     throw error;
   }
 
+  // res.cookie("refreshToken", refreshToken, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",
+  //   sameSite: "strict",
+  //   path: "/",
+  //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  // });
+
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: false, // false for localhost, true in production
+    sameSite: 'lax', // 'lax' for localhost, 'none' in production
     path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.json({
@@ -144,6 +155,7 @@ const loginUser = asyncHandler(async (req, res) => {
     refreshToken,
   });
 });
+
 
 
 // Refresh Access Token --------------------------------------------------------------
@@ -326,7 +338,26 @@ const updateUserRole = asyncHandler(async (req, res) => {
 });
 
 
+
 // Resend Verification Email --------------------------------------------------------------
+// const resendVerificationEmail = asyncHandler(async (req, res) => {
+//   const { email } = req.body;
+
+//   if (!email) {
+//     const error = new Error("Email is required");
+//     error.statusCode = 400; 
+//     throw error;
+//   }
+
+//   await resendVerificationEmailService(email);
+
+//   res.status(200).json({ message: "Verification email resent successfully" });
+// });
+
+
+
+// Resend Verification Email --------------------------------------------------------------
+// In your userController.js
 const resendVerificationEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -336,11 +367,32 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
     throw error;
   }
 
-  await resendVerificationEmailService(email);
+  // 1. Find user by email
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User with this email not found");
+  }
 
-  res.status(200).json({ message: "Verification email resent successfully" });
+  // 2. Check if already verified
+  if (user.isVerified) {
+    throw new Error("Email is already verified");
+  }
+
+  // 3. Generate new verification token
+  const verificationToken = crypto.randomBytes(20).toString('hex');
+  user.emailVerificationToken = verificationToken;
+  user.emailVerificationExpires = Date.now() + 3600000; // 1 hour
+  
+  await user.save();
+
+  // 4. Send verification email
+  await sendVerificationEmail(user.email, verificationToken, user.username);
+
+  res.status(200).json({ 
+    success: true,
+    message: "Verification email resent successfully"
+  });
 });
-
 
 // Admin: Get All Unverified Users --------------------------------------------------------------
 const getUnverifiedUsers = asyncHandler(async (req, res) => {
@@ -405,92 +457,115 @@ const forgotPassword = asyncHandler(async (req, res) => {
 });
 
 
+
 // Validate Reset Token --------------------------------------------------------------
-// const validateResetToken = asyncHandler(async (req, res) => {
-//   const { token } = req.query;
-
-//   if (!token) {
-//     const error = new Error("Token is required");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   const userId = await validateResetTokenService(token);
-
-//   if (!userId) {
-//     const error = new Error("Invalid or expired token");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   res.status(200).json({
-//     message: "Token is valid. You can now reset your password.",
-//     userId,
-//   });
-// });
-
-
 const validateResetToken = asyncHandler(async (req, res) => {
   const { token } = req.query;
 
   if (!token) {
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password-verification.html?error=Token is required`);
+    const error = new Error("Token is required");
+    error.statusCode = 400; 
+    throw error;
   }
 
   const userId = await validateResetTokenService(token);
 
   if (!userId) {
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password-verification.html?error=Invalid or expired token`);
+    const error = new Error("Invalid or expired token");
+    error.statusCode = 400; 
+    throw error;
   }
 
-  // Redirect to frontend with success
-  res.redirect(`${process.env.API_BASE_URL}/reset-password-verification.html?userId=${userId}`);
+  res.status(200).json({
+    message: "Token is valid. You can now reset your password.",
+    userId,
+  });
 });
+
+
+// const validateResetToken = asyncHandler(async (req, res) => {
+//   const { token } = req.query;
+
+//   if (!token) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Token is required`);
+//   }
+
+//   const userId = await validateResetTokenService(token);
+
+//   if (!userId) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Invalid or expired token`);
+//   }
+
+//   // Redirect to frontend with success
+//   res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?userId=${userId}`);
+// });
+
+
+// const validateResetToken = asyncHandler(async (req, res) => {
+//   const { token } = req.query;
+
+//   if (!token) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Token+is+required`);
+//   }
+
+//   const userId = await validateResetTokenService(token);
+
+//   if (!userId) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Invalid+or+expired+token`);
+//   }
+
+//   // Successful validation - redirect with userId
+//   res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?userId=${userId}`);
+// });
+
+
+
 
 
 
 
 // Reset Password --------------------------------------------------------------
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const { token, newPassword, confirmNewPassword, userId } = req.body;
-
-//   if (!token || !newPassword || !confirmNewPassword || !userId) {
-//     const error = new Error("All fields are required");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   // Password match
-//   confirmPasswordMatch(newPassword, confirmNewPassword);
-
-//   await resetPasswordService(userId, token, newPassword);
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Password reset successfully",
-//   });
-// });
-
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?error=All fields are required`);
+    const error = new Error("All fields are required");
+    error.statusCode = 400; 
+    throw error;
   }
 
-  try {
-    // Password match validation
-    confirmPasswordMatch(newPassword, confirmNewPassword);
+  // Password match
+  confirmPasswordMatch(newPassword, confirmNewPassword);
 
-    // Reset password in database
-    await resetPasswordService(userId, token, newPassword);
+  await resetPasswordService(userId, token, newPassword);
 
-    // Redirect to success page
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?success=Password reset successfully`);
-  } catch (error) {
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
-  }
+  res.status(200).json({
+    success: true,
+    message: "Password reset successfully",
+  });
 });
+
+
+// const resetPassword = asyncHandler(async (req, res) => {
+//   const { token, newPassword, confirmNewPassword, userId } = req.body;
+
+//   if (!token || !newPassword || !confirmNewPassword || !userId) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
+//   }
+
+//   try {
+//     // Password match validation
+//     confirmPasswordMatch(newPassword, confirmNewPassword);
+
+//     // Reset password in database
+//     await resetPasswordService(userId, token, newPassword);
+
+//     // Redirect to success page
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?success=Password reset successfully`);
+//   } catch (error) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=${encodeURIComponent(error.message)}`);
+//   }
+// });
 
 
 
