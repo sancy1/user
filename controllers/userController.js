@@ -547,24 +547,54 @@ const validateResetToken = asyncHandler(async (req, res) => {
 
 
 
+// const resetPassword = asyncHandler(async (req, res) => {
+//   const { token, newPassword, confirmNewPassword, userId } = req.body;
+
+//   if (!token || !newPassword || !confirmNewPassword || !userId) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
+//   }
+
+//   try {
+//     // Password match validation
+//     confirmPasswordMatch(newPassword, confirmNewPassword);
+
+//     // Reset password in database
+//     await resetPasswordService(userId, token, newPassword);
+
+//     // Redirect to success page
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password reset successfully`);
+//   } catch (error) {
+//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
+//   }
+// });
+
+
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
+    return res.status(400).json({ 
+      error: 'All fields are required' 
+    });
   }
 
   try {
     // Password match validation
     confirmPasswordMatch(newPassword, confirmNewPassword);
-
+    
     // Reset password in database
     await resetPasswordService(userId, token, newPassword);
 
-    // Redirect to success page
-    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password reset successfully`);
+    // Return success response
+    return res.json({ 
+      success: true,
+      message: 'Password reset successfully' 
+    });
+    
   } catch (error) {
-    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
+    return res.status(400).json({
+      error: error.message
+    });
   }
 });
 
