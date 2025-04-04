@@ -525,47 +525,47 @@ const validateResetToken = asyncHandler(async (req, res) => {
 
 
 // Reset Password --------------------------------------------------------------
-const resetPassword = asyncHandler(async (req, res) => {
-  const { token, newPassword, confirmNewPassword, userId } = req.body;
-
-  if (!token || !newPassword || !confirmNewPassword || !userId) {
-    const error = new Error("All fields are required");
-    error.statusCode = 400; 
-    throw error;
-  }
-
-  // Password match
-  confirmPasswordMatch(newPassword, confirmNewPassword);
-
-  await resetPasswordService(userId, token, newPassword);
-
-  res.status(200).json({
-    success: true,
-    message: "Password reset successfully",
-  });
-});
-
-
 // const resetPassword = asyncHandler(async (req, res) => {
 //   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
 //   if (!token || !newPassword || !confirmNewPassword || !userId) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
+//     const error = new Error("All fields are required");
+//     error.statusCode = 400; 
+//     throw error;
 //   }
 
-//   try {
-//     // Password match validation
-//     confirmPasswordMatch(newPassword, confirmNewPassword);
+//   // Password match
+//   confirmPasswordMatch(newPassword, confirmNewPassword);
 
-//     // Reset password in database
-//     await resetPasswordService(userId, token, newPassword);
+//   await resetPasswordService(userId, token, newPassword);
 
-//     // Redirect to success page
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?success=Password reset successfully`);
-//   } catch (error) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=${encodeURIComponent(error.message)}`);
-//   }
+//   res.status(200).json({
+//     success: true,
+//     message: "Password reset successfully",
+//   });
 // });
+
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword, confirmNewPassword, userId } = req.body;
+
+  if (!token || !newPassword || !confirmNewPassword || !userId) {
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password?error=All fields are required`);
+  }
+
+  try {
+    // Password match validation
+    confirmPasswordMatch(newPassword, confirmNewPassword);
+
+    // Reset password in database
+    await resetPasswordService(userId, token, newPassword);
+
+    // Redirect to success page
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password?success=Password reset successfully`);
+  } catch (error) {
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password?error=${encodeURIComponent(error.message)}`);
+  }
+});
 
 
 
