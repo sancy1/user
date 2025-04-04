@@ -3,8 +3,8 @@ const { apiInstance, createBaseEmail, createEmailTemplate } = require("./emailSe
 
 const sendPasswordResetEmail = async (email, token, username) => {
   try {
-    // const resetUrl = `${process.env.API_BASE_URL}/api/users/reset-password?token=${token}`;
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password-verification.html?token=${token}`;
+    const resetUrl = `${process.env.API_BASE_URL}/api/users/reset-password?token=${token}`;
+    //const resetUrl = `${process.env.FRONTEND_URL}/reset-password-verification.html?token=${token}`;
     const expirationDate = new Date(Date.now() + 86400000) // 24 hours in milliseconds
     
     const emailContent = createEmailTemplate({
