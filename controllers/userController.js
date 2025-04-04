@@ -573,31 +573,28 @@ const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    return res.status(400).json({ 
-      error: 'All fields are required' 
-    });
+    // Add CORS headers to error redirect
+    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All+fields+are+required`);
   }
 
   try {
     // Password match validation
     confirmPasswordMatch(newPassword, confirmNewPassword);
-    
+
     // Reset password in database
     await resetPasswordService(userId, token, newPassword);
 
-    // Return success response
-    return res.json({ 
-      success: true,
-      message: 'Password reset successfully' 
-    });
-    
+    // Add CORS headers to success redirect
+    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password+reset+successfully`);
+
   } catch (error) {
-    return res.status(400).json({
-      error: error.message
-    });
+    // Add CORS headers to error redirect
+    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
   }
 });
-
 
 
 
