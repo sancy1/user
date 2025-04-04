@@ -547,35 +547,11 @@ const validateResetToken = asyncHandler(async (req, res) => {
 
 
 
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const { token, newPassword, confirmNewPassword, userId } = req.body;
-
-//   if (!token || !newPassword || !confirmNewPassword || !userId) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
-//   }
-
-//   try {
-//     // Password match validation
-//     confirmPasswordMatch(newPassword, confirmNewPassword);
-
-//     // Reset password in database
-//     await resetPasswordService(userId, token, newPassword);
-
-//     // Redirect to success page
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password reset successfully`);
-//   } catch (error) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
-//   }
-// });
-
-
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    // Add CORS headers to error redirect
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All+fields+are+required`);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
   }
 
   try {
@@ -585,16 +561,13 @@ const resetPassword = asyncHandler(async (req, res) => {
     // Reset password in database
     await resetPasswordService(userId, token, newPassword);
 
-    // Add CORS headers to success redirect
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password+reset+successfully`);
-
+    // Redirect to success page
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password reset successfully`);
   } catch (error) {
-    // Add CORS headers to error redirect
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
   }
 });
+
 
 
 
