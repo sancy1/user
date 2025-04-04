@@ -551,7 +551,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?error=All fields are required`);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
   }
 
   try {
@@ -562,9 +562,9 @@ const resetPassword = asyncHandler(async (req, res) => {
     await resetPasswordService(userId, token, newPassword);
 
     // Redirect to success page
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?success=Password reset successfully`);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password reset successfully`);
   } catch (error) {
-    return res.redirect(`${process.env.API_BASE_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
   }
 });
 
