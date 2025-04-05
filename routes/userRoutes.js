@@ -695,51 +695,14 @@ router.get('/reset-password', validateResetToken);
  *                   type: string
  *                   example: "Internal server error"
  */
-// router.post('/reset-password', resetPasswordValidationRules, (req, res, next) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() });
-//   }
-//   next(); // Proceed to the resetPassword controller if validation passes
-// }, resetPassword); // Include resetPassword controller
+router.post('/reset-password', resetPasswordValidationRules, (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next(); // Proceed to the resetPassword controller if validation passes
+}, resetPassword); // Include resetPassword controller
 
-
-// Main reset password route with CORS + validation
-router.post('/reset-password',
-  // CORS middleware
-  (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-    res.setHeader('Access-Control-Allow-Methods', 'POST');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-  },
-  
-  // Your imported validation rules
-  resetPasswordValidationRules,
-  
-  // Validation result handler
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false,
-        errors: errors.array() 
-      });
-    }
-    next();
-  },
-  
-  // Main controller
-  resetPassword
-);
-
-// Preflight OPTIONS handler
-router.options('/reset-password', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.sendStatus(200);
-});
 
 module.exports = router;
 
