@@ -66,54 +66,36 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests, or server-to-server)
-    if (!origin) return callback(null, true);
-    
+    // Allow requests with no origin (like mobile apps, server-to-server, or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+
     // List of allowed origins
     const allowedOrigins = [
-      process.env.FRONTEND_URL, // Note: Fixed typo from FRONTEND_URL to FRONTEND_URL (if that was your intention)
+      process.env.FRONTEND_URL, // Ensure this environment variable is correctly set
       'https://coruscating-snickerdoodle-49faf5.netlify.app',
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://ellux.onrender.com',
-      'https://ellux-app.netlify.app', // More specific than wildcard
-      /\.netlify\.app$/, // Regex for all Netlify apps (more secure than wildcard)
-    ].filter(Boolean); // Remove any undefined values
+      'http://localhost:5173',   // Vite default dev server port
+      'http://localhost:3000',   // Common React dev server port
+      'https://ellux.onrender.com', // Your backend URL (might not need to allow itself)
+      // 'https://*.netlify.app', // This wildcard won't work directly. See explanation below.
+    ].filter(Boolean); // Remove any undefined or empty string values
 
-    // Check if origin matches exactly or matches regex pattern
-    if (
-      allowedOrigins.some(allowed => {
-        if (typeof allowed === 'string') {
-          return origin === allowed;
-        } else if (allowed instanceof RegExp) {
-          return allowed.test(origin);
-        }
-        return false;
-      })
-    ) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`CORS blocked for origin: ${origin}`); // Helpful for debugging
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Origin "${origin}" not allowed by CORS`));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Added PATCH
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept'
-  ], // Added more commonly used headers
-  exposedHeaders: ['Content-Range', 'X-Content-Range'], // If you need these
-  maxAge: 86400 // 24 hours for preflight cache
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// Apply CORS with these options
-app.use(cors(corsOptions));
+const corsMiddleware = cors(corsOptions);
 
-// Explicit OPTIONS handler for all routes
-app.options('*', cors(corsOptions));
+app.use(corsMiddleware);
+app.options("*", corsMiddleware); // Handle preflight requests for all routes
 
 
 
