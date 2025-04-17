@@ -77,11 +77,20 @@ const corsOptions = {
 
     // Check if origin is allowed
     const isAllowed = allowedOrigins.some(allowed => {
-      if (allowed.includes('*')) {
-        const regexPattern = allowed.replace(/\./g, '\\.').replace(/\*/g, '.*');
-        return new RegExp(`^${regexPattern}$`).test(origin);
+      try {
+        if (allowed === origin) return true;
+        if (allowed.includes('*')) {
+          // Convert wildcard pattern to regex safely
+          const regexPattern = '^' + allowed
+            .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special chars
+            .replace(/\*/g, '.*') + '$';
+          return new RegExp(regexPattern).test(origin);
+        }
+        return false;
+      } catch (e) {
+        console.error('Error checking CORS origin:', e);
+        return false;
       }
-      return origin === allowed;
     });
 
     if (isAllowed) {
