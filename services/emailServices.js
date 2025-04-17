@@ -3,7 +3,7 @@ require("dotenv").config();
 const SibApiV3Sdk = require("@getbrevo/brevo");
 const emailStyles = require("./emailStyles");
 
-const hoursRemaining = 24
+const hoursRemaining = 24;
 
 // Initialize the API client
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
@@ -85,13 +85,21 @@ const createEmailTemplate = (options) => {
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
               </svg>
               <div>
-                  <strong>Important:</strong> This password reset link will expire on 
-                  ${expirationDate instanceof Date && !isNaN(expirationDate) ? expirationDate.toLocaleString() : "tomorrow"} 
-                  (approximately ${hoursRemaining} ${hoursRemaining === 1 ? "hour" : "hours"} from now)
+                  <strong>Important:</strong> This link will expire on 
+                  ${
+                    expirationDate instanceof Date && !isNaN(expirationDate)
+                      ? expirationDate.toLocaleString()
+                      : "tomorrow"
+                  } 
+                  (approximately ${hoursRemaining} ${
+    hoursRemaining === 1 ? "hour" : "hours"
+  } from now)
                 </div>
             </div>
             
-            ${securityNotice ? `
+            ${
+              securityNotice
+                ? `
             <div class="security-info">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -100,11 +108,15 @@ const createEmailTemplate = (options) => {
                 <strong>Security Notice:</strong> ${securityNotice}
               </div>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
             
             <div class="divider"></div>
             
-            ${showSupportInfo ? `
+            ${
+              showSupportInfo
+                ? `
             <div class="support-info">
               <p>Need help or have questions?</p>
               <p>Contact our support team at <a href="mailto:support@Ellux.com">support@Ellux.com</a></p>
@@ -114,7 +126,9 @@ const createEmailTemplate = (options) => {
               <p>Thank you for using Ellux,</p>
               <p><strong>The Ellux Team</strong></p>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
           
           <div class="footer">
@@ -151,5 +165,5 @@ module.exports = {
   apiInstance,
   generateEmailAvatar,
   createBaseEmail,
-  createEmailTemplate
+  createEmailTemplate,
 };
