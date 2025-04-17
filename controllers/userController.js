@@ -441,6 +441,8 @@ const deleteAllUsersExceptAdmin = asyncHandler(async (req, res) => {
 });
 
 
+
+
 // Forgot Password --------------------------------------------------------------
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
@@ -455,6 +457,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "Password reset email sent" });
 });
+
 
 
 
@@ -483,131 +486,29 @@ const validateResetToken = asyncHandler(async (req, res) => {
 });
 
 
-// const validateResetToken = asyncHandler(async (req, res) => {
-//   const { token } = req.query;
-
-//   if (!token) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Token is required`);
-//   }
-
-//   const userId = await validateResetTokenService(token);
-
-//   if (!userId) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Invalid or expired token`);
-//   }
-
-//   // Redirect to frontend with success
-//   res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?userId=${userId}`);
-// });
-
-
-// const validateResetToken = asyncHandler(async (req, res) => {
-//   const { token } = req.query;
-
-//   if (!token) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Token+is+required`);
-//   }
-
-//   const userId = await validateResetTokenService(token);
-
-//   if (!userId) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Invalid+or+expired+token`);
-//   }
-
-//   // Successful validation - redirect with userId
-//   res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?userId=${userId}`);
-// });
-
-
-
-
-
 
 
 // Reset Password --------------------------------------------------------------
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const { token, newPassword, confirmNewPassword, userId } = req.body;
-
-//   if (!token || !newPassword || !confirmNewPassword || !userId) {
-//     const error = new Error("All fields are required");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   // Password match
-//   confirmPasswordMatch(newPassword, confirmNewPassword);
-
-//   await resetPasswordService(userId, token, newPassword);
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Password reset successfully",
-//   });
-// });
-
-
-
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const { token, newPassword, confirmNewPassword, userId } = req.body;
-
-//   if (!token || !newPassword || !confirmNewPassword || !userId) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=All fields are required`);
-//   }
-
-//   try {
-//     // Password match validation
-//     confirmPasswordMatch(newPassword, confirmNewPassword);
-
-//     // Reset password in database
-//     await resetPasswordService(userId, token, newPassword);
-
-//     // Redirect to success page
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?success=Password reset successfully`);
-//   } catch (error) {
-//     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
-//   }
-// });
-
-
-
-
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
   if (!token || !newPassword || !confirmNewPassword || !userId) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields are required",
-      errors: {
-        token: !token ? "Token is required" : undefined,
-        newPassword: !newPassword ? "New password is required" : undefined,
-        confirmNewPassword: !confirmNewPassword ? "Password confirmation is required" : undefined,
-        userId: !userId ? "User ID is required" : undefined
-      }
-    });
+    const error = new Error("All fields are required");
+    error.statusCode = 400; 
+    throw error;
   }
 
-  try {
-    // Password match validation
-    confirmPasswordMatch(newPassword, confirmNewPassword);
+  // Password match
+  confirmPasswordMatch(newPassword, confirmNewPassword);
 
-    // Reset password in database
-    await resetPasswordService(userId, token, newPassword);
+  await resetPasswordService(userId, token, newPassword);
 
-    // Return JSON response instead of redirect
-    return res.status(200).json({
-      success: true,
-      message: "Password reset successfully",
-      redirectUrl: `${process.env.FRONTEND_URL}/signin.html?reset=success`
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-      error: error.message
-    });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Password reset successfully",
+  });
 });
+
 
 
 
