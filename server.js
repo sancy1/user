@@ -1,5 +1,3 @@
-
-
 require("dotenv").config();
 require("express-async-errors");
 const express = require("express");
@@ -85,7 +83,7 @@ const startServer = async () => {
       API Base URL: ${API_BASE_URL}
       Port: ${PORT}
       Environment: ${process.env.NODE_ENV || "development"}
-      Allowed Origins: ${corsOptions.origin.toString()}
+      Allowed Origins: ${allowedOrigins.join(', ')}
       MongoDB: Connected
       ==================================
       `);
@@ -97,4 +95,3 @@ const startServer = async () => {
 };
 
 startServer();
-
