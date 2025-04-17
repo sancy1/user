@@ -69,8 +69,11 @@ const corsOptions = {
     // List of allowed origins
     const allowedOrigins = [
       process.env.FRONTEND_URL,
-      'http://localhost:5173', // Default Vite server
-      'https://ellux.onrender.com' // Your Render URL
+      'https://coruscating-snickerdoodle-49faf5.netlify.app',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://ellux.onrender.com',
+      'https://*.netlify.app',
     ].filter(Boolean); // Remove any undefined values
 
     if (allowedOrigins.includes(origin) || allowedOrigins.some(allowed => origin.startsWith(allowed))) {

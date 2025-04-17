@@ -653,11 +653,11 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       'https://coruscating-snickerdoodle-49faf5.netlify.app',
-      'http://localhost:5173', // Your Vite frontend
-      'http://localhost:3000', // The API server itself
+      'http://localhost:5173',
+      'http://localhost:3000',
       'https://ellux.onrender.com',
       'https://*.netlify.app',
-      // Add these for Swagger UI:
+      
       'http://localhost:3000/api-docs', 
       'http://localhost:3000/api-docs/'
     ].filter(Boolean);
