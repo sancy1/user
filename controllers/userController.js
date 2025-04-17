@@ -585,14 +585,6 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 
 
-async function resetPasswordService(userId, token, newPassword) {
-  // This would contain your actual password reset logic
-  console.log(`Resetting password for user ${userId} with token ${token}`);
-  // Simulate database operation
-  return true;
-}
-
-
 // const resetPassword = asyncHandler(async (req, res) => {
 //   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
