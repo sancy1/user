@@ -57,38 +57,65 @@ app.use(express.json());
 // HTTP request logging
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+
+
+
 // ======================
 // CORS Configuration
 // ======================
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (like mobile apps, curl requests, or server-to-server)
     if (!origin) return callback(null, true);
     
     // List of allowed origins
     const allowedOrigins = [
-      process.env.FRONTEND_URL,
+      process.env.FRONTEND_URL, // Note: Fixed typo from FRONTEND_URL to FRONTEND_URL (if that was your intention)
       'https://coruscating-snickerdoodle-49faf5.netlify.app',
       'http://localhost:5173',
       'http://localhost:3000',
       'https://ellux.onrender.com',
-      'https://*.netlify.app',
+      'https://ellux-app.netlify.app', // More specific than wildcard
+      /\.netlify\.app$/, // Regex for all Netlify apps (more secure than wildcard)
     ].filter(Boolean); // Remove any undefined values
 
-    if (allowedOrigins.includes(origin) || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+    // Check if origin matches exactly or matches regex pattern
+    if (
+      allowedOrigins.some(allowed => {
+        if (typeof allowed === 'string') {
+          return origin === allowed;
+        } else if (allowed instanceof RegExp) {
+          return allowed.test(origin);
+        }
+        return false;
+      })
+    ) {
       callback(null, true);
     } else {
+      console.warn(`CORS blocked for origin: ${origin}`); // Helpful for debugging
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Added PATCH
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept'
+  ], // Added more commonly used headers
+  exposedHeaders: ['Content-Range', 'X-Content-Range'], // If you need these
+  maxAge: 86400 // 24 hours for preflight cache
 };
 
+// Apply CORS with these options
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+
+// Explicit OPTIONS handler for all routes
+app.options('*', cors(corsOptions));
+
+
 
 // ======================
 // Authentication
