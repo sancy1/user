@@ -463,49 +463,24 @@ const validateResetToken = asyncHandler(async (req, res) => {
   const { token } = req.query;
 
   if (!token) {
-      const error = new Error("Token is required");
-      error.statusCode = 400;
-      return res.status(400).json({ message: error.message }); // Return JSON error
+    const error = new Error("Token is required");
+    error.statusCode = 400; 
+    throw error;
   }
 
   const userId = await validateResetTokenService(token);
 
   if (!userId) {
-      const error = new Error("Invalid or expired token");
-      error.statusCode = 400;
-      return res.status(400).json({ message: error.message }); // Return JSON error
+    const error = new Error("Invalid or expired token");
+    error.statusCode = 400; 
+    throw error;
   }
 
   res.status(200).json({
-      message: "Token is valid. You can now reset your password.",
-      userId,
+    message: "Token is valid. You can now reset your password.",
+    userId,
   });
 });
-
-
-// const validateResetToken = asyncHandler(async (req, res) => {
-//   const { token } = req.query;
-
-//   if (!token) {
-//     const error = new Error("Token is required");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   const userId = await validateResetTokenService(token);
-
-//   if (!userId) {
-//     const error = new Error("Invalid or expired token");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   res.status(200).json({
-//     message: "Token is valid. You can now reset your password.",
-//     userId,
-//   });
-// });
-
 
 
 // const validateResetToken = asyncHandler(async (req, res) => {
@@ -520,7 +495,6 @@ const validateResetToken = asyncHandler(async (req, res) => {
 //   if (!userId) {
 //     return res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?error=Invalid or expired token`);
 //   }
-
 
 //   // Redirect to frontend with success
 //   res.redirect(`${process.env.FRONTEND_URL}/reset-password-verification.html?userId=${userId}`);
@@ -551,40 +525,6 @@ const validateResetToken = asyncHandler(async (req, res) => {
 
 
 // Reset Password --------------------------------------------------------------
-const resetPassword = asyncHandler(async (req, res) => {
-  const { token, newPassword, confirmNewPassword, userId } = req.body;
-
-  // Validate required fields
-  if (!token || !newPassword || !confirmNewPassword || !userId) {
-      return res.status(400).json({
-          success: false,
-          message: "All fields are required"
-      });
-  }
-
-  try {
-      // Password match validation (assuming this function exists)
-      confirmPasswordMatch(newPassword, confirmNewPassword);
-
-      // Reset password in database (assuming this service exists)
-      await resetPasswordService(userId, token, newPassword);
-
-      // Return success JSON response
-      return res.status(200).json({
-          success: true,
-          message: "Password reset successfully"
-      });
-  } catch (error) {
-      // Return error JSON response
-      return res.status(400).json({
-          success: false,
-          message: error.message || "Password reset failed"
-      });
-  }
-});
-
-
-
 // const resetPassword = asyncHandler(async (req, res) => {
 //   const { token, newPassword, confirmNewPassword, userId } = req.body;
 
@@ -627,6 +567,47 @@ const resetPassword = asyncHandler(async (req, res) => {
 //     return res.redirect(`${process.env.FRONTEND_URL}/reset-password.html?error=${encodeURIComponent(error.message)}`);
 //   }
 // });
+
+
+
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword, confirmNewPassword, userId } = req.body;
+
+  if (!token || !newPassword || !confirmNewPassword || !userId) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+      errors: {
+        token: !token ? "Token is required" : undefined,
+        newPassword: !newPassword ? "New password is required" : undefined,
+        confirmNewPassword: !confirmNewPassword ? "Password confirmation is required" : undefined,
+        userId: !userId ? "User ID is required" : undefined
+      }
+    });
+  }
+
+  try {
+    // Password match validation
+    confirmPasswordMatch(newPassword, confirmNewPassword);
+
+    // Reset password in database
+    await resetPasswordService(userId, token, newPassword);
+
+    // Return JSON response instead of redirect
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+      redirectUrl: `${process.env.FRONTEND_URL}/signin.html?reset=success`
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+      error: error.message
+    });
+  }
+});
 
 
 
