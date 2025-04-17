@@ -583,12 +583,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 });
 
-// For demonstration purposes
-function confirmPasswordMatch(password, confirmPassword) {
-  if (password !== confirmPassword) {
-      throw new Error("Passwords do not match");
-  }
-}
+
 
 async function resetPasswordService(userId, token, newPassword) {
   // This would contain your actual password reset logic
