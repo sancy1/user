@@ -59,6 +59,59 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // ======================
 // CORS Configuration
 // ======================
+
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps or curl requests)
+//     if (!origin) return callback(null, true);
+
+//     const allowedOrigins = [
+//       process.env.FRONTEND_URL,
+//       'https://coruscating-snickerdoodle-49faf5.netlify.app',
+//       'https://ellux.onrender.com',
+//       ...(process.env.NODE_ENV === 'development' ? [
+//         'http://localhost:5173',
+//         'http://localhost:3000'
+//       ] : []),
+//       'https://*.netlify.app'
+//     ].filter(Boolean);
+
+//     // Check if origin is allowed
+//     const isAllowed = allowedOrigins.some(allowed => {
+//       try {
+//         if (allowed === origin) return true;
+//         if (allowed.includes('*')) {
+//           // Convert wildcard pattern to regex safely
+//           const regexPattern = '^' + allowed
+//             .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special chars
+//             .replace(/\*/g, '.*') + '$';
+//           return new RegExp(regexPattern).test(origin);
+//         }
+//         return false;
+//       } catch (e) {
+//         console.error('Error checking CORS origin:', e);
+//         return false;
+//       }
+//     });
+
+//     if (isAllowed) {
+//       callback(null, true);
+//     } else {
+//       console.warn(`CORS blocked for origin: ${origin}`);
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+//   exposedHeaders: ['Authorization']
+// };
+
+// app.use(cors(corsOptions));
+// app.options('*', cors(corsOptions));
+
+
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -66,34 +119,15 @@ const corsOptions = {
 
     const allowedOrigins = [
       process.env.FRONTEND_URL,
-      'https://coruscating-snickerdoodle-49faf5.netlify.app',
-      'https://ellux.onrender.com',
+      'https://coruscating-snickerdoodle-49faf5.netlify.app', // Your Netlify URL
+      'https://ellux.onrender.com', // Your backend
       ...(process.env.NODE_ENV === 'development' ? [
-        'http://localhost:5173',
-        'http://localhost:3000'
-      ] : []),
-      'https://*.netlify.app'
+        'http://localhost:5173', // Vite dev server
+        'http://localhost:3000'  // Local API server
+      ] : [])
     ].filter(Boolean);
 
-    // Check if origin is allowed
-    const isAllowed = allowedOrigins.some(allowed => {
-      try {
-        if (allowed === origin) return true;
-        if (allowed.includes('*')) {
-          // Convert wildcard pattern to regex safely
-          const regexPattern = '^' + allowed
-            .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special chars
-            .replace(/\*/g, '.*') + '$';
-          return new RegExp(regexPattern).test(origin);
-        }
-        return false;
-      } catch (e) {
-        console.error('Error checking CORS origin:', e);
-        return false;
-      }
-    });
-
-    if (isAllowed) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.warn(`CORS blocked for origin: ${origin}`);
