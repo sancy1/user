@@ -4,6 +4,10 @@
 // controllers/profileController.js
 
 const asyncHandler = require("express-async-handler");
+const upload = require('../middlewares/upload');
+const Profile = require('../models/Profile');
+const path = require('path');
+const fs = require('fs');
 const {
   createProfileService,
   getProfileService,
@@ -38,29 +42,138 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 
+// Helper function to clean up local image files
+const cleanupLocalImage = (imagePath) => {
+  if (imagePath && !imagePath.startsWith('http')) {
+    const fullPath = path.join(__dirname, '../', imagePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
+};
 
 // Update user profile
-const updateProfile = asyncHandler(async (req, res) => {
-  const userId = req.user._id; // Changed from req.user.userId to req.user._id
-  const updates = req.body;
+// const updateProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user._id; // Changed from req.user.userId to req.user._id
+//   const updates = req.body;
   
-  const updatedProfile = await updateProfileService(userId, updates);
-  res.status(200).json(updatedProfile);
+//   const updatedProfile = await updateProfileService(userId, updates);
+//   res.status(200).json(updatedProfile);
+// });
+
+// Update user profile with image handling
+const updateProfile = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  let updates = req.body;
+
+  try {
+    // Handle file upload if present
+    if (req.file) {
+      // Get current profile to check for existing image
+      const currentProfile = await Profile.findOne({ userId });
+      
+      // Clean up old image if exists
+      cleanupLocalImage(currentProfile?.profileImage);
+
+      // Set new image path
+      updates.profileImage = `/uploads/${req.file.filename}`;
+    }
+
+    // Update the profile in database
+    const updatedProfile = await updateProfileService(userId, updates);
+    
+    res.status(200).json({
+      success: true,
+      profile: updatedProfile
+    });
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });
 
+
+
 // Delete user profile
-const deleteProfile = asyncHandler(async (req, res) => {
-  const userId = req.user._id; // Changed from req.user.userId to req.user._id
+// const deleteProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user._id; // Changed from req.user.userId to req.user._id
   
-  await deleteProfileService(userId);
-  res.status(204).json({ message: "Profile deleted successfully" });
+//   await deleteProfileService(userId);
+//   res.status(204).json({ message: "Profile deleted successfully" });
+// });
+
+// Delete user profile with image cleanup
+const deleteProfile = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    // Get profile first to access image path
+    const profile = await Profile.findOne({ userId });
+    
+    // Clean up associated image file
+    cleanupLocalImage(profile?.profileImage);
+
+    // Delete profile from database
+    await deleteProfileService(userId);
+    
+    res.status(204).json({ 
+      success: true,
+      message: "Profile and associated image deleted successfully" 
+    });
+
+  } catch (error) {
+    console.error('Error deleting profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete profile',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });
+
+
+
+// Add new endpoint for image upload ----------------------------------------------------------------
+const uploadProfileImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'No file uploaded' 
+    });
+  }
+
+  try {
+    const profile = await Profile.findOneAndUpdate(
+      { userId: req.user._id },
+      { profileImage: `/uploads/${req.file.filename}` },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      profileImage: profile.profileImage
+    });
+  } catch (error) {
+    console.error('Error updating profile image:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to update profile image'
+    });
+  }
+});
+
 
 module.exports = {
   createProfile,
   getProfile,
   updateProfile,
   deleteProfile,
+  uploadProfileImage
 };
 
 

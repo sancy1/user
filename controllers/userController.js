@@ -49,64 +49,83 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 // Verify Email --------------------------------------------------------------
-// const verifyEmail = asyncHandler(async (req, res) => {
-//   const { token } = req.query;
-
-//   if (!token) {
-//     const error = new Error("Token is required");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   const user = await verifyEmailService(token);
-
-//   if (!user) {
-//     const error = new Error("Invalid or expired token");
-//     error.statusCode = 400; 
-//     throw error;
-//   }
-
-//   res.status(200).json({ message: "Email verified successfully" });
-// });
-
-
-// const verifyEmail = asyncHandler(async (req, res) => {
-//   const { token } = req.query;
-
-//   if (!token) {
-//     return res.redirect(302, `${process.env.API_BASE_URL}/verify-email.html?error=Token is required`);
-//   }
-
-//   const user = await verifyEmailService(token);
-
-//   if (!user) {
-//     return res.redirect(302, `${process.env.API_BASE_URL}/verify-email.html?error=Invalid or expired token`);
-//   }
-
-//   // Redirect to success page instead of returning JSON
-//   res.redirect(302, `${process.env.API_BASE_URL}/verify-email.html?verified=true`);
-// });
-
-
-
-const verifyEmail = async (req, res) => {
+const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.query;
 
-  try {
-    const user = await verifyEmailService(token); // Your verification logic
-
-    if (!user) {
-      // Redirect to FRONTEND with error
-      return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=Invalid+token`);
-    }
-
-    // ✅ SUCCESS: Redirect to FRONTEND (not backend!)
-    return res.redirect(`${process.env.FRONTEND_URL}/verify-email?verified=true`);
-  } catch (error) {
-    // Redirect to FRONTEND with error
-    return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=${encodeURIComponent(error.message)}`);
+  if (!token) {
+    const error = new Error("Token is required");
+    error.statusCode = 400; 
+    throw error;
   }
-};
+
+  const user = await verifyEmailService(token);
+
+  if (!user) {
+    const error = new Error("Invalid or expired token");
+    error.statusCode = 400; 
+    throw error;
+  }
+
+  res.status(200).json({ message: "Email verified successfully" });
+});
+
+
+
+
+// const verifyEmail = async (req, res) => {
+//   const { token } = req.query;
+
+//   try {
+//     const user = await verifyEmailService(token); // Your verification logic
+
+//     if (!user) {
+//       // Redirect to FRONTEND with error
+//       return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=Invalid+token`);
+//     }
+
+//     // ✅ SUCCESS: Redirect to FRONTEND (not backend!)
+//     return res.redirect(`${process.env.FRONTEND_URL}/verify-email?verified=true`);
+//   } catch (error) {
+//     // Redirect to FRONTEND with error
+//     return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=${encodeURIComponent(error.message)}`);
+//   }
+// };
+
+
+
+
+// const verifyEmail = async (req, res) => {
+//   const { token } = req.query;
+
+//   try {
+//     const user = await verifyEmailService(token);
+
+//     if (!user) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "INVALID_TOKEN", // Standardized error code
+//         message: "Email verification token is invalid or expired.",
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Email verified successfully.",
+//       user: { 
+//         id: user._id, 
+//         email: user.email 
+//       },
+//       redirectTo: "/dashboard", // Optional suggestion
+//     });
+
+//   } catch (error) {
+//     return res.status(400).json({
+//       success: false,
+//       error: "VERIFICATION_FAILED", // Standardized error code
+//       message: error.message || "Email verification failed.",
+//     });
+//   }
+// };
 
 
 

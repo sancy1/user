@@ -1,0 +1,74 @@
+2025-05-20T15:02:13.796Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:02:13.805Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:03:13.810Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:03:13.815Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:04:13.822Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:04:13.830Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:05:13.835Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:05:13.840Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:06:13.844Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:06:13.848Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:07:13.853Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:07:13.864Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:08:13.855Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:08:13.857Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:09:13.868Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:09:13.870Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:10:13.877Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:10:13.878Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:11:13.884Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:11:13.887Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:12:13.892Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:12:13.899Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:13:13.898Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:13:13.899Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:14:13.913Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:14:13.916Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:15:13.927Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:15:13.932Z [ERROR]: ❌ Cleanup failed: connectDB is not a function
+2025-05-20T15:16:08.688Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:16:12.110Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:16:12.311Z [INFO]: Deleted orphan: profile-1747699796624-893219728.png
+2025-05-20T15:16:12.331Z [INFO]: Deleted orphan: profile-1747699861818-712910170.png
+2025-05-20T15:16:12.334Z [INFO]: Deleted orphan: profile-1747737445388-627157669.png
+2025-05-20T15:16:12.336Z [INFO]: Deleted orphan: profile-1747737616852-889365404.png
+2025-05-20T15:16:12.338Z [INFO]: ✨ Cleanup complete. Deleted 4/5 files
+2025-05-20T15:17:12.341Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:17:12.510Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:17:12.670Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:18:12.347Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:18:12.496Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:18:12.674Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:19:12.358Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:19:12.501Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:19:12.640Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:20:12.369Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:20:12.518Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:20:12.670Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:21:12.370Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:21:12.522Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:21:12.674Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:22:12.384Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:22:12.539Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:22:12.696Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:23:12.387Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:23:12.546Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:23:12.695Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:24:12.391Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:24:12.547Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:24:12.703Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:25:08.680Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:25:14.686Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:25:14.886Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:26:14.903Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:26:15.058Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:26:15.213Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:27:14.912Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:27:15.064Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:27:15.226Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:28:14.919Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:28:15.068Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:28:15.210Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files
+2025-05-20T15:29:14.928Z [INFO]: 🚀 Starting image cleanup
+2025-05-20T15:29:15.173Z [INFO]: Connected to DB (3 profiles)
+2025-05-20T15:29:15.357Z [INFO]: ✨ Cleanup complete. Deleted 0/1 files

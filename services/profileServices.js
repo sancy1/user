@@ -1,6 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const Profile = require("../models/Profile");
 const User = require("../models/User");
+const path = require('path');
+const fs = require('fs');
 const generateAvatar = require("../utils/avatarGenerator");
 
 
@@ -94,52 +96,127 @@ const getProfileService = async (userId) => {
 };
 
 
+// Helper function for image cleanup
+const cleanupProfileImage = async (userId) => {
+  const profile = await Profile.findOne({ userId });
+  if (profile?.profileImage && !profile.profileImage.startsWith('http')) {
+    const imagePath = path.join(__dirname, '../../', profile.profileImage);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+  }
+};
+
+
 // Update user profile --------------------------------------------------------------
+// const updateProfileService = async (userId, updates) => {
+//   try {
+//     if (Object.keys(updates).length === 0) {
+//       const error = new Error("Request body is required");
+//       error.statusCode = 400; 
+//       throw error; 
+//     }
+
+//     const profile = await Profile.findOneAndUpdate(
+//       { userId }, 
+//       updates,
+//       { new: true }
+//     );
+
+//     if (!profile) {
+//       const error = new Error("Profile not found");
+//       error.statusCode = 404; 
+//       throw error; 
+//     }
+
+//     return profile;
+//   } catch (error) {
+//     console.error("Error in updateProfileService:", error);
+//     throw error; 
+//   }
+// };
+
+// Update user profile
 const updateProfileService = async (userId, updates) => {
   try {
-    if (Object.keys(updates).length === 0) {
-      const error = new Error("Request body is required");
-      error.statusCode = 400; 
-      throw error; 
+    if (!userId || Object.keys(updates).length === 0) {
+      const error = new Error("User ID and updates are required");
+      error.statusCode = 400;
+      throw error;
     }
 
     const profile = await Profile.findOneAndUpdate(
-      { userId }, 
+      { userId },
       updates,
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!profile) {
       const error = new Error("Profile not found");
-      error.statusCode = 404; 
-      throw error; 
+      error.statusCode = 404;
+      throw error;
     }
 
     return profile;
   } catch (error) {
     console.error("Error in updateProfileService:", error);
-    throw error; 
+    throw error;
   }
 };
 
 
+
 // Delete user profile and account --------------------------------------------------------------
+// const deleteProfileService = async (userId) => {
+//   try {
+//     const profile = await Profile.findOneAndDelete({ userId }); 
+
+//     if (!profile) {
+//       const error = new Error("Profile not found");
+//       error.statusCode = 404; 
+//       throw error; 
+//     }
+
+//     await User.findByIdAndDelete(userId);
+
+//     return { message: "Profile and user account deleted successfully" };
+//   } catch (error) {
+//     console.error("Error in deleteProfileService:", error);
+//     throw error; 
+//   }
+// };
+
+// Delete user profile and account
 const deleteProfileService = async (userId) => {
   try {
-    const profile = await Profile.findOneAndDelete({ userId }); 
-
-    if (!profile) {
-      const error = new Error("Profile not found");
-      error.statusCode = 404; 
-      throw error; 
+    if (!userId) {
+      const error = new Error("User ID is required");
+      error.statusCode = 400;
+      throw error;
     }
 
-    await User.findByIdAndDelete(userId);
+    // Clean up profile image first
+    await cleanupProfileImage(userId);
 
-    return { message: "Profile and user account deleted successfully" };
+    // Delete profile and user
+    const [profile, user] = await Promise.all([
+      Profile.findOneAndDelete({ userId }),
+      User.findByIdAndDelete(userId)
+    ]);
+
+    if (!profile || !user) {
+      const error = new Error("Profile or User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return { 
+      success: true,
+      message: "Profile and user account deleted successfully" 
+    };
   } catch (error) {
     console.error("Error in deleteProfileService:", error);
-    throw error; 
+    throw error;
   }
 };
 

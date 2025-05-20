@@ -2,6 +2,7 @@
 require("dotenv").config();
 require("express-async-errors");
 const express = require("express");
+const path = require('path');
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
@@ -102,6 +103,9 @@ app.use(passport.initialize());
 // API Routes
 // ======================
 app.use("/api", routes);
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ======================
 // Documentation

@@ -704,6 +704,8 @@ router.post('/reset-password', resetPasswordValidationRules, (req, res, next) =>
 }, resetPassword); // Include resetPassword controller
 
 
+
+
 module.exports = router;
 
 
