@@ -14,12 +14,44 @@ const routes = require("./routes");
 const swaggerSetup = require("./swagger/swagger");
 const errorHandler = require("./middlewares/errorHandler");
 
+// Import the cleanup function
+const { cleanupOrphanedImages } = require('./scripts/imageCleanup');
+const logger = require('./utils/logger'); // Your logger utility
+
+
+
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const API_BASE_URL = process.env.API_BASE_URL || 
   (process.env.NODE_ENV === 'production' ? 'https://ellux.onrender.com' : `http://localhost:${PORT}`);
+
+
+
+// --- NEW CLEANUP ENDPOINT ---
+app.post('/api/cleanup-images', async (req, res, next) => { // Added next for error handling
+  // Security Check: Use a secret key to prevent unauthorized access
+  const CLEANUP_SECRET_KEY = process.env.CLEANUP_SECRET_KEY;
+
+  if (!CLEANUP_SECRET_KEY || req.headers['x-cleanup-secret'] !== CLEANUP_SECRET_KEY) {
+    logger.warn('Unauthorized attempt to trigger image cleanup: Invalid or missing secret key.');
+    return res.status(403).json({ message: 'Forbidden: Invalid or missing secret key.' });
+  }
+
+  logger.info('API endpoint triggered: Attempting image cleanup...');
+  try {
+    await cleanupOrphanedImages(); // Call the cleanup function
+    logger.info('API endpoint: Image cleanup process completed.');
+    res.status(200).json({ message: 'Image cleanup process initiated and completed successfully.' });
+  } catch (error) {
+    logger.error('API endpoint: Image cleanup failed during execution:', error);
+    // Pass the error to the next error handling middleware
+    next(error); // This will allow your errorHandler middleware to catch it
+  }
+});
+// --- END NEW CLEANUP ENDPOINT ---
+
 
 // ======================
 // Security Middleware
